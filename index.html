@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatPlace | AI Automation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-blue: #4d7cff;
+            --accent-purple: #b46cff;
+            --accent-cyan: #2dd4bf;
+            --accent-pink: #fb7185;
+            --text-main: #f4f8ff;
+            --text-secondary: #9eb0d8;
+            --glass: rgba(255, 255, 255, 0.1);
+            --header-h: 58px;
+            --safe-bottom: env(safe-area-inset-bottom, 0);
+            --section-gap: clamp(20px, 3.5vw, 32px);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-top: var(--header-h);
+            background-color: #141a3d;
+            background-image:
+                radial-gradient(1000px 520px at 8% -8%, rgba(77, 124, 255, 0.45), transparent 58%),
+                radial-gradient(820px 480px at 92% 0%, rgba(180, 108, 255, 0.38), transparent 55%),
+                radial-gradient(700px 420px at 50% 105%, rgba(45, 212, 191, 0.18), transparent 50%),
+                linear-gradient(165deg, #101632 0%, #1a2148 38%, #1a1538 100%);
+            background-attachment: fixed;
+        }
+
+        body.nav-open { overflow: hidden; }
+
+        .container { max-width: 1120px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 24px); }
+
+        /* ——— Header ——— */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--header-h);
+            background: rgba(22, 28, 58, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .site-header .inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 clamp(16px, 4vw, 24px);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: clamp(1.1rem, 3vw, 1.45rem);
+            color: var(--text-main);
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo span { color: var(--accent-blue); }
+
+        .nav-desktop {
+            display: none;
+            align-items: center;
+            gap: clamp(8px, 1.5vw, 20px);
+            flex: 1;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-desktop a {
+            color: rgba(228, 236, 255, 0.82);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 8px 10px;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-desktop a:hover {
+            color: #fff;
+            background: rgba(77, 124, 255, 0.22);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-switcher { display: flex; gap: 4px; flex-shrink: 0; }
+
+        .lang-switcher button {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: white;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: 0.25s;
+        }
+
+        .lang-switcher button.active {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(77, 124, 255, 0.45);
+        }
+
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 44px;
+            height: 44px;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .menu-toggle span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background: #fff;
+            border-radius: 2px;
+            transition: transform 0.25s, opacity 0.25s;
+        }
+
+        body.nav-open .menu-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        body.nav-open .menu-toggle span:nth-child(2) { opacity: 0; }
+        body.nav-open .menu-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .menu-toggle:focus-visible {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: 2px;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: var(--header-h) 0 0 0;
+            background: rgba(0, 0, 0, 0.55);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 998;
+        }
+
+        body.nav-open .drawer-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .drawer {
+            position: fixed;
+            top: var(--header-h);
+            right: 0;
+            width: min(320px, 92vw);
+            max-height: calc(100vh - var(--header-h) - var(--safe-bottom));
+            overflow-y: auto;
+            background: linear-gradient(200deg, #1c2248 0%, #181032 100%);
+            border-left: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 20px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 999;
+            box-shadow: -12px 0 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body.nav-open .drawer { transform: translateX(0); }
+
+        .drawer nav { display: flex; flex-direction: column; gap: 4px; }
+
+        .drawer nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .drawer nav a:hover,
+        .drawer nav a:focus-visible {
+            background: rgba(62, 99, 255, 0.12);
+            border-color: rgba(62, 99, 255, 0.25);
+        }
+
+        .drawer .drawer-lang {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .drawer .drawer-lang p {
+            margin: 0 0 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+        }
+
+        @media (min-width: 960px) {
+            .nav-desktop { display: flex; }
+            .drawer, .drawer-backdrop { display: none; }
+            .menu-toggle { display: none; }
+        }
+
+        /* ——— Hero ——— */
+        .hero {
+            padding: clamp(36px, 7vw, 72px) 0 clamp(28px, 4vw, 44px);
+            text-align: center;
+            position: relative;
+        }
+
+        h1.hero-title {
+            font-family: 'Orbitron', 'Inter', sans-serif;
+            font-size: clamp(1.75rem, 4.5vw, 3.2rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin: 0 auto 16px;
+            max-width: 920px;
+            letter-spacing: 0.05em;
+            background: linear-gradient(
+                110deg,
+                #e0f2fe 0%,
+                #ffffff 20%,
+                #7dd3fc 38%,
+                #c4b5fd 55%,
+                #60a5fa 72%,
+                #fce7f3 88%,
+                #ffffff 100%
+            );
+            background-size: 220% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: title-shimmer 5s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(77, 124, 255, 0.5)) drop-shadow(0 0 36px rgba(180, 108, 255, 0.35));
+        }
+
+        @keyframes title-shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            h1.hero-title { animation: none; background-position: 40% 50%; }
+        }
+
+        .hero p {
+            color: rgba(210, 222, 255, 0.92);
+            font-size: clamp(0.98rem, 2.1vw, 1.15rem);
+            margin: 0 auto 24px;
+            max-width: 620px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #4d7cff 0%, #7c5cff 45%, #e879a9 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: 0.25s;
+            box-shadow: 0 10px 28px rgba(77, 124, 255, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(124, 92, 255, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.18) inset; }
+
+        /* Social strip */
+        .social-strip {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: clamp(10px, 2.5vw, 22px);
+            margin-top: clamp(24px, 4vw, 36px);
+        }
+
+        .social-strip a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .social-strip a:hover {
+            background: rgba(77, 124, 255, 0.35);
+            border-color: rgba(125, 211, 252, 0.55);
+            box-shadow: 0 0 24px rgba(77, 124, 255, 0.35);
+        }
+
+        .social-strip svg { width: 24px; height: 24px; }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .social-strip a {
+                animation: social-float 4s ease-in-out infinite;
+            }
+            .social-strip a:nth-child(1) { animation-delay: 0s; }
+            .social-strip a:nth-child(2) { animation-delay: 0.5s; }
+            .social-strip a:nth-child(3) { animation-delay: 1s; }
+            .social-strip a:nth-child(4) { animation-delay: 1.5s; }
+        }
+
+        @keyframes social-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .social-strip a { animation: none; }
+        }
+
+        /* Visual tiles */
+        .section-label {
+            display: inline-block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.68rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #c7d7ff;
+            margin: 0 0 10px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(77, 124, 255, 0.35), rgba(180, 108, 255, 0.28));
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .solutions {
+            padding: var(--section-gap) 0;
+        }
+
+        .solutions h2 {
+            font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+            margin: 0 0 8px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 40px rgba(77, 124, 255, 0.25);
+        }
+
+        .solutions .lead {
+            color: rgba(200, 214, 245, 0.95);
+            margin: 0 0 16px;
+            max-width: 640px;
+            font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+            line-height: 1.55;
+        }
+
+        /* Growth infographic */
+        .growth-viz {
+            margin: 0 0 18px;
+            padding: 14px 16px 12px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(77, 124, 255, 0.14), rgba(45, 212, 191, 0.08));
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .growth-viz svg { display: block; width: 100%; height: auto; max-height: 88px; }
+
+        .growth-path {
+            fill: none;
+            stroke: url(#growthGrad);
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            filter: drop-shadow(0 0 8px rgba(77, 124, 255, 0.55));
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .growth-path { animation: drawline 2s ease-out forwards 0.15s; }
+        }
+
+        @keyframes drawline { to { stroke-dashoffset: 0; } }
+
+        @media (prefers-reduced-motion: reduce) {
+            .growth-path { stroke-dashoffset: 0; }
+        }
+
+        .growth-viz__cap {
+            margin: 8px 0 0;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(199, 215, 255, 0.85);
+            text-align: center;
+        }
+
+        .growth-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            height: 44px;
+            margin-top: 6px;
+            padding: 0 4px;
+        }
+
+        .growth-bars i {
+            flex: 1;
+            display: block;
+            border-radius: 8px 8px 3px 3px;
+            height: var(--h, 40%);
+            min-height: 14px;
+            background: linear-gradient(180deg, rgba(125, 211, 252, 0.95), rgba(77, 124, 255, 0.75));
+            box-shadow: 0 0 16px rgba(77, 124, 255, 0.35);
+            transform-origin: bottom;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .growth-bars i { animation: bar-pop 0.9s ease-out both; }
+            .growth-bars i:nth-child(1) { animation-delay: 0.05s; }
+            .growth-bars i:nth-child(2) { animation-delay: 0.12s; }
+            .growth-bars i:nth-child(3) { animation-delay: 0.19s; }
+            .growth-bars i:nth-child(4) { animation-delay: 0.26s; }
+            .growth-bars i:nth-child(5) { animation-delay: 0.33s; }
+            .growth-bars i:nth-child(6) { animation-delay: 0.4s; }
+            .growth-bars i:nth-child(7) { animation-delay: 0.47s; }
+        }
+
+        @keyframes bar-pop {
+            from { transform: scaleY(0.2); opacity: 0.4; }
+            to { transform: scaleY(1); opacity: 1; }
+        }
+
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+            gap: clamp(12px, 2vw, 18px);
+        }
+
+        .tile {
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            min-height: 188px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: linear-gradient(145deg, rgba(30, 36, 72, 0.9), rgba(24, 20, 48, 0.95));
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+        }
+
+        .tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+            opacity: 0.62;
+            transition: opacity 0.35s, transform 0.45s ease;
+        }
+
+        .tile:hover img {
+            opacity: 0.82;
+            transform: scale(1.03);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tile:hover img { transform: none; }
+        }
+
+        .tile-overlay {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            min-height: 188px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 16px 18px;
+            background: linear-gradient(180deg, rgba(16, 22, 50, 0.05) 0%, rgba(16, 22, 50, 0.45) 38%, rgba(12, 14, 36, 0.94) 100%);
+        }
+
+        .tile-overlay h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(0.95rem, 2.2vw, 1.08rem);
+            letter-spacing: 0.05em;
+            margin: 0 0 6px;
+            color: #fff;
+        }
+
+        .tile-overlay p {
+            margin: 0;
+            font-size: 0.84rem;
+            color: rgba(226, 234, 255, 0.88);
+            line-height: 1.45;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+            gap: clamp(10px, 1.8vw, 16px);
+            margin: var(--section-gap) 0;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(77, 124, 255, 0.1));
+            padding: clamp(16px, 2.5vw, 22px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow:
+                0 0 0 1px rgba(125, 211, 252, 0.12) inset,
+                0 14px 36px rgba(77, 124, 255, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card h2 {
+            font-size: clamp(1.85rem, 3.8vw, 2.35rem);
+            margin: 0;
+            background: linear-gradient(90deg, #7dd3fc, #a78bfa, #fb7185);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .stat-card h2 { animation: stat-glow 3.5s ease-in-out infinite; }
+        }
+
+        @keyframes stat-glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.12); }
+        }
+
+        .stat-card p { margin: 6px 0 0; color: rgba(210, 222, 255, 0.9); font-size: 0.88rem; position: relative; z-index: 1; }
+
+        .stat-meter {
+            margin-top: 12px;
+            height: 6px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-meter span {
+            display: block;
+            height: 100%;
+            width: var(--w, 70%);
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue), var(--accent-purple));
+            transform-origin: left;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .stat-meter span { animation: meter-fill 1.4s ease-out both; }
+            .stat-card:nth-child(2) .stat-meter span { animation-delay: 0.08s; }
+            .stat-card:nth-child(3) .stat-meter span { animation-delay: 0.16s; }
+        }
+
+        @keyframes meter-fill {
+            from { transform: scaleX(0.15); opacity: 0.5; }
+            to { transform: scaleX(1); opacity: 1; }
+        }
+
+        /* Features */
+        .features-wrap { padding-bottom: var(--section-gap); }
+
+        .features-wrap > h2 { font-size: clamp(1.35rem, 2.8vw, 1.85rem); margin: 0 0 8px; color: #fff; }
+
+        .features-wrap > .lead { color: rgba(200, 214, 245, 0.95); margin: 0 0 16px; font-size: clamp(0.92rem, 1.6vw, 1.02rem); max-width: 680px; }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+            gap: clamp(12px, 1.8vw, 16px);
+        }
+
+        .f-card {
+            background: linear-gradient(155deg, rgba(255, 255, 255, 0.1), rgba(77, 124, 255, 0.06));
+            padding: clamp(18px, 2.5vw, 24px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+        }
+
+        .f-card:hover {
+            border-color: rgba(125, 211, 252, 0.45);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(77, 124, 255, 0.2);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .f-card:hover { transform: none; }
+        }
+
+        .f-card .f-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.35), rgba(77, 124, 255, 0.35));
+            font-size: 1.05rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .f-card h3 {
+            background: linear-gradient(90deg, #e9d5ff, #c4b5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 8px;
+            font-size: 1.02rem;
+        }
+
+        .f-card p { margin: 0; color: rgba(200, 214, 245, 0.92); font-size: 0.9rem; line-height: 1.5; }
+
+        /* Platforms */
+        .platforms {
+            margin: 0 0 var(--section-gap);
+            padding: clamp(18px, 2.5vw, 26px);
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(77, 124, 255, 0.16), rgba(180, 108, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .platforms h2 { margin: 0 0 6px; font-size: clamp(1.15rem, 2.3vw, 1.4rem); color: #fff; }
+
+        .platforms > p { margin: 0 0 14px; color: rgba(210, 222, 255, 0.9); font-size: 0.9rem; }
+
+        .platform-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .platform-chips span {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #eef4ff;
+        }
+
+        /* Newsletter */
+        .newsletter {
+            margin: 0 0 clamp(24px, 3vw, 36px);
+            padding: clamp(24px, 4vw, 36px) clamp(18px, 3vw, 32px);
+            border-radius: 22px;
+            background: linear-gradient(145deg, rgba(77, 124, 255, 0.22), rgba(180, 108, 255, 0.14));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 56px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter::before {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle at 30% 20%, rgba(45, 212, 191, 0.2), transparent 42%),
+                        radial-gradient(circle at 80% 80%, rgba(251, 113, 133, 0.15), transparent 40%);
+            pointer-events: none;
+        }
+
+        .newsletter-inner { position: relative; z-index: 1; text-align: center; max-width: 560px; margin: 0 auto; }
+
+        .newsletter h2 {
+            font-family: 'Orbitron', 'Inter', sans-serif;
+            font-size: clamp(1.15rem, 2.8vw, 1.55rem);
+            margin: 0 0 12px;
+            letter-spacing: 0.04em;
+            color: var(--text-main);
+        }
+
+        .newsletter > .newsletter-inner > p {
+            color: var(--text-secondary);
+            margin: 0 0 26px;
+            font-size: 1rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .newsletter-form input[type="email"] {
+            flex: 1 1 220px;
+            min-width: 0;
+            max-width: 100%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(16, 22, 50, 0.55);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .newsletter-form input[type="email"]:focus {
+            border-color: rgba(125, 211, 252, 0.75);
+            box-shadow: 0 0 0 3px rgba(77, 124, 255, 0.28);
+        }
+
+        .newsletter-form button[type="submit"] {
+            flex: 0 0 auto;
+            padding: 14px 24px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #fff;
+            background: linear-gradient(135deg, #4d7cff, #a855f7, #fb7185);
+            box-shadow: 0 10px 28px rgba(77, 124, 255, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .newsletter-form button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(168, 85, 247, 0.45);
+        }
+
+        .newsletter-thanks {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: rgba(77, 124, 255, 0.2);
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            color: #dbeafe;
+            font-size: 0.9rem;
+        }
+
+        .newsletter-thanks.visible { display: block; }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 18px 0 calc(26px + var(--safe-bottom));
+            text-align: center;
+            color: rgba(180, 198, 235, 0.85);
+            font-size: 0.85rem;
+        }
+
+        /* Value proposition */
+        .pitch-section {
+            margin: 0 0 var(--section-gap);
+            padding: clamp(18px, 3vw, 26px) clamp(18px, 3vw, 28px);
+            border-radius: 22px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(77, 124, 255, 0.08));
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+        }
+
+        .pitch-section .section-label { margin-bottom: 8px; }
+
+        .pitch-section h2 {
+            font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+            margin: 0 0 12px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.25;
+        }
+
+        .pitch-ai {
+            margin: 0 0 18px;
+            font-size: clamp(0.95rem, 1.7vw, 1.05rem);
+            color: rgba(220, 230, 255, 0.95);
+            line-height: 1.6;
+        }
+
+        .pitch-list-title {
+            margin: 0 0 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(199, 215, 255, 0.95);
+        }
+
+        .pitch-list {
+            margin: 0 0 18px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .pitch-list li {
+            position: relative;
+            padding: 8px 0 8px 28px;
+            font-size: clamp(0.92rem, 1.5vw, 0.98rem);
+            color: rgba(210, 222, 255, 0.94);
+            line-height: 1.45;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .pitch-list li:last-child { border-bottom: none; }
+
+        .pitch-list li::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+        }
+
+        .pitch-nn {
+            margin: 0;
+            font-size: clamp(0.9rem, 1.5vw, 0.98rem);
+            color: rgba(200, 214, 245, 0.92);
+            line-height: 1.58;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: rgba(16, 22, 50, 0.45);
+            border: 1px solid rgba(125, 211, 252, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="inner">
+        <a href="#top" class="logo">ChatPlace<span>.io</span></a>
+        <nav class="nav-desktop" aria-label="Main">
+            <a href="#top" data-key="nav_home">Главная</a>
+            <a href="#value" data-key="nav_value">О платформе</a>
+            <a href="#solutions" data-key="nav_sol">Направления</a>
+            <a href="#stats" data-key="nav_stats">Цифры</a>
+            <a href="#features" data-key="nav_feat">Возможности</a>
+            <a href="#subscribe" data-key="nav_sub">Подписка</a>
+        </nav>
+        <div class="header-actions">
+            <div class="lang-switcher" role="group" aria-label="Language">
+                <button type="button" onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
+                <button type="button" onclick="setLang('uz')" id="btn-uz">UZ</button>
+                <button type="button" onclick="setLang('en')" id="btn-en">EN</button>
+            </div>
+            <button type="button" class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="drawer-nav" aria-label="Меню">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+    <nav id="drawer-nav" aria-label="Мобильное меню">
+        <a href="#top" data-key="nav_home">Главная</a>
+        <a href="#value" data-key="nav_value">О платформе</a>
+        <a href="#solutions" data-key="nav_sol">Направления</a>
+        <a href="#stats" data-key="nav_stats">Цифры</a>
+        <a href="#features" data-key="nav_feat">Возможности</a>
+        <a href="#subscribe" data-key="nav_sub">Подписка</a>
+    </nav>
+    <div class="drawer-lang">
+        <p data-key="nav_lang_label">Язык</p>
+        <div class="lang-switcher">
+            <button type="button" onclick="setLang('ru'); closeNav();" id="btn-ru-d">RU</button>
+            <button type="button" onclick="setLang('uz'); closeNav();" id="btn-uz-d">UZ</button>
+            <button type="button" onclick="setLang('en'); closeNav();" id="btn-en-d">EN</button>
+        </div>
+    </div>
+</aside>
+
+<section class="hero" id="top">
+    <div class="container">
+        <h1 class="hero-title" data-key="title">Масштабируйте свой бизнес в соцсетях с помощью ИИ</h1>
+        <p data-key="subtitle">Платформа позволяет бизнесу выстраивать полноценные воронки прямо в Instagram, TikTok и Telegram: от первого касания до продажи — без постоянного участия менеджера.</p>
+        <a href="https://chatplace.io/ru/?r=019da718-c7cc-70d4-864e-b76db322f1c7" class="btn" data-key="cta">Попробовать бесплатно</a>
+
+        <div class="social-strip">
+            <a href="#subscribe" title="Instagram" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A3.5 3.5 0 1 1 8.5 11 3.5 3.5 0 0 1 12 7.5zm0 2A1.5 1.5 0 1 0 13.5 11 1.5 1.5 0 0 0 12 9.5zm5.25-3.25a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg>
+            </a>
+            <a href="#subscribe" title="Telegram" aria-label="Telegram">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.04 15.31l-.4 3.78c.57 0 .82-.24 1.12-.53l2.68-2.55 5.56 4.07c1.02.56 1.75.27 2.02-.94l3.65-17.1c.33-1.55-.56-2.16-1.58-1.78L2.1 10.26c-1.48.57-1.46 1.39-.25 1.75l4.9 1.53L18.9 6.23c.42-.26.81-.12.49.17"/></svg>
+            </a>
+            <a href="#subscribe" title="TikTok" aria-label="TikTok">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.931-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+            <a href="#subscribe" title="Facebook" aria-label="Facebook">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 22v-9h3l.5-4h-3.5V7c0-1 .3-1.7 1.8-1.7H17V1.1C16.6 1 15.3 1 14 1c-2.7 0-4.6 1.6-4.6 4.6V9H7v4h2.4v9h4.1z"/></svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <section class="pitch-section reveal" id="value" aria-labelledby="pitch-head">
+        <p class="section-label" data-key="pitch_label">О платформе</p>
+        <h2 id="pitch-head" data-key="pitch_head">Умные AI-агенты — виртуальный сотрудник в чатах</h2>
+        <p class="pitch-ai" data-key="pitch_ai">Главная фишка — умные AI-агенты, которые работают как виртуальный сотрудник: отвечают на сообщения, обрабатывают заявки, консультируют клиентов и даже передают диалог живому менеджеру при необходимости.</p>
+        <p class="pitch-list-title" data-key="pitch_list_title">Сервис умеет:</p>
+        <ul class="pitch-list">
+            <li data-key="pitch_li1">Автоматически отвечать в директе и комментариях</li>
+            <li data-key="pitch_li2">Прогревать аудиторию через сценарии и автоворонки</li>
+            <li data-key="pitch_li3">Собирать базу клиентов и сегментировать её</li>
+            <li data-key="pitch_li4">Принимать оплаты и интегрироваться с другими сервисами</li>
+            <li data-key="pitch_li5">Масштабировать продажи без увеличения команды</li>
+        </ul>
+        <p class="pitch-nn" data-key="pitch_nn">Дополнительно встроенная нейросеть на базе современных AI-моделей помогает делать коммуникацию более «живой» и персонализированной, что повышает вовлечённость и конверсию.</p>
+    </section>
+
+    <section class="solutions reveal" id="solutions" aria-labelledby="sol-heading">
+        <p class="section-label" data-key="sol_label">Каркас роста</p>
+        <h2 id="sol-heading" data-key="sol_heading">Четыре опоры: охват, диалог, ИИ, управление</h2>
+        <p class="lead" data-key="sol_lead">Соберите вокруг бренда предсказуемую механику: контент и SMM тянут трафик, боты квалифицируют, ИИ дожимает до сделки, а единые правила держат соцсети в одном ритме.</p>
+        <div class="growth-viz" aria-hidden="true">
+            <svg viewBox="0 0 320 52" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <linearGradient id="growthGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#2dd4bf"/>
+                        <stop offset="48%" stop-color="#4d7cff"/>
+                        <stop offset="100%" stop-color="#c084fc"/>
+                    </linearGradient>
+                </defs>
+                <path class="growth-path" pathLength="100" d="M4,40 C44,34 72,42 104,26 S152,34 188,16 S232,24 264,10 S296,14 316,6"/>
+            </svg>
+            <div class="growth-bars">
+                <i style="--h:34%"></i><i style="--h:52%"></i><i style="--h:41%"></i><i style="--h:68%"></i><i style="--h:55%"></i><i style="--h:78%"></i><i style="--h:92%"></i>
+            </div>
+            <p class="growth-viz__cap" data-key="growth_cap">Охват → диалог → конверсия</p>
+        </div>
+        <div class="tile-grid">
+            <article class="tile">
+                <img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?auto=format&fit=crop&w=520&q=70" alt="" width="520" height="320" loading="lazy" decoding="async">
+                <div class="tile-overlay">
+                    <h3 data-key="tile1_t">SMM</h3>
+                    <p data-key="tile1_d">Календарь, ритм публикаций и смысловые крючки — чтобы стабильно наращивать охваты без хаоса в команде.</p>
+                </div>
+            </article>
+            <article class="tile">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=520&q=70" alt="" width="520" height="320" loading="lazy" decoding="async">
+                <div class="tile-overlay">
+                    <h3 data-key="tile2_t">Чат-боты</h3>
+                    <p data-key="tile2_d">Первый ответ за секунды: проверка подписки, сегментация и сценарии, которые ведут человека к цели.</p>
+                </div>
+            </article>
+            <article class="tile">
+                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=520&q=70" alt="" width="520" height="320" loading="lazy" decoding="async">
+                <div class="tile-overlay">
+                    <h3 data-key="tile3_t">AI-агенты</h3>
+                    <p data-key="tile3_d">Живой тон бренда, память контекста и аккуратные продажи — когда важно не потерять тепло общения.</p>
+                </div>
+            </article>
+            <article class="tile">
+                <img src="https://images.unsplash.com/photo-1611923265768-c7e5761ff2e7?auto=format&fit=crop&w=520&q=70" alt="" width="520" height="320" loading="lazy" decoding="async">
+                <div class="tile-overlay">
+                    <h3 data-key="tile4_t">Управление соцсетями</h3>
+                    <p data-key="tile4_d">Сторис, комментарии, директ и мессенджеры — одна логика вовлечения и меньше «ручного» тушения пожаров.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <div class="stats reveal" id="stats">
+        <div class="stat-card">
+            <h2 data-key="stat1_val">x5</h2>
+            <p data-key="stat1_txt">Рост охватов</p>
+            <div class="stat-meter" aria-hidden="true"><span style="--w: 88%"></span></div>
+        </div>
+        <div class="stat-card">
+            <h2 data-key="stat2_val">150 000+</h2>
+            <p data-key="stat2_txt">Подписчиков</p>
+            <div class="stat-meter" aria-hidden="true"><span style="--w: 96%"></span></div>
+        </div>
+        <div class="stat-card">
+            <h2 data-key="stat3_val">5 мин</h2>
+            <p data-key="stat3_txt">На запуск</p>
+            <div class="stat-meter" aria-hidden="true"><span style="--w: 72%"></span></div>
+        </div>
+    </div>
+
+    <section class="features-wrap reveal" id="features" aria-labelledby="feat-heading">
+        <p class="section-label" data-key="feat_label">Автоматизация в цифрах смысла</p>
+        <h2 id="feat-heading" data-key="feat_heading">От первого касания до повторной покупки</h2>
+        <p class="lead" data-key="feat_lead">Каждый модуль закрывает этап воронки: привлечение, доверие, продажа, удержание. Соединяйте их в цепочку — и рост становится измеримым.</p>
+        <div class="features">
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">🤖</div>
+                <h3 data-key="f1_t">ИИ-агенты</h3>
+                <p data-key="f1_d">Держит диалог в голосе бренда, помнит контекст и мягко ведёт к оплате — даже когда команда офлайн.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">💬</div>
+                <h3 data-key="f4_t">Чат-боты с проверкой подписки</h3>
+                <p data-key="f4_d">Гейт на бонус или материал: подписка подтверждена — и только тогда открывается следующий шаг воронки.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">🔗</div>
+                <h3 data-key="f5_t">Реферальная система</h3>
+                <p data-key="f5_d">Превращайте довольных подписчиков в канал органического трафика: рекомендации, которые можно отследить.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">🎮</div>
+                <h3 data-key="f2_t">Геймификация</h3>
+                <p data-key="f2_d">Начисления и таблицы лидеров без ручной рутины — аудитория возвращается за статусом и призами.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">⚡</div>
+                <h3 data-key="f3_t">Автоворонки</h3>
+                <p data-key="f3_d">Прогревы, напоминания и «возвраты» в диалог — чтобы холодный трафик не остывал между касаниями.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">📲</div>
+                <h3 data-key="f6_t">Запуск со смартфона</h3>
+                <p data-key="f6_d">Короткая форма быстрого старта: текст сценария — и бот уже ведёт людей, без долгой настройки «под капотом».</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">📸</div>
+                <h3 data-key="f7_t">Instagram</h3>
+                <p data-key="f7_d">Связка Reels, сторис и директа: больше идей для контента и понятный путь от просмотра к действию.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">👍</div>
+                <h3 data-key="f8_t">Facebook и Messenger</h3>
+                <p data-key="f8_d">Один сценарий на комментарии и личку — удобно, если бренд живёт сразу в нескольких площадках.</p>
+            </div>
+            <div class="f-card">
+                <div class="f-icon" aria-hidden="true">🔌</div>
+                <h3 data-key="f9_t">CRM и интеграции</h3>
+                <p data-key="f9_d">События из чатов улетают в оплату, таблицы и сторонние сервисы — меньше потерянных лидов по дороге.</p>
+            </div>
+        </div>
+    </section>
+
+  
+    <section class="newsletter" id="subscribe" aria-labelledby="nl-heading">
+        <div class="newsletter-inner">
+            <h2 id="nl-heading" data-key="nl_title">Письма про рост, не про шум</h2>
+                        <form class="newsletter-form" id="newsletter-form" action="#" method="post" novalidate>
+                <input type="email" name="email" data-key="nl_placeholder" placeholder="you@company.com" autocomplete="email" required>
+                <button type="submit" data-key="nl_btn">Подписаться</button>
+            </form>
+            <div class="newsletter-thanks" id="nl-thanks" data-key="nl_thanks" role="status" aria-live="polite"></div>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <div class="container">
+        <span data-key="footer_copy">© ChatPlace · AI для соцсетей</span>
+    </div>
+</footer>
+
+<script>
+    const langData = {
+        ru: {
+            nav_home: 'Главная', nav_value: 'О платформе', nav_sol: 'Направления', nav_stats: 'Цифры', nav_feat: 'Возможности', nav_plat: 'Платформы', nav_sub: 'Подписка', nav_lang_label: 'Язык',
+            title: 'Масштабируйте свой бизнес в соцсетях с помощью ИИ',
+            subtitle: 'Платформа позволяет бизнесу выстраивать полноценные воронки прямо в Instagram, TikTok и Telegram: от первого касания до продажи — без постоянного участия менеджера.',
+            cta: 'Попробовать бесплатно',
+            pitch_label: 'О платформе',
+            pitch_head: 'Умные AI-агенты — виртуальный сотрудник в чатах',
+            pitch_ai: 'Главная фишка — умные AI-агенты, которые работают как виртуальный сотрудник: отвечают на сообщения, обрабатывают заявки, консультируют клиентов и даже передают диалог живому менеджеру при необходимости.',
+            pitch_list_title: 'Сервис умеет:',
+            pitch_li1: 'Автоматически отвечать в директе и комментариях',
+            pitch_li2: 'Прогревать аудиторию через сценарии и автоворонки',
+            pitch_li3: 'Собирать базу клиентов и сегментировать её',
+            pitch_li4: 'Принимать оплаты и интегрироваться с другими сервисами',
+            pitch_li5: 'Масштабировать продажи без увеличения команды',
+            pitch_nn: 'Дополнительно встроенная нейросеть на базе современных AI-моделей помогает делать коммуникацию более «живой» и персонализированной, что повышает вовлечённость и конверсию.',
+            sol_label: 'Каркас роста', sol_heading: 'Четыре опоры: охват, диалог, ИИ, управление',
+            sol_lead: 'Соберите вокруг бренда предсказуемую механику: контент и SMM тянут трафик, боты квалифицируют, ИИ дожимает до сделки, а единые правила держат соцсети в одном ритме.',
+            growth_cap: 'Охват → диалог → конверсия',
+            tile1_t: 'SMM', tile1_d: 'Календарь, ритм публикаций и смысловые крючки — чтобы стабильно наращивать охваты без хаоса в команде.',
+            tile2_t: 'Чат-боты', tile2_d: 'Первый ответ за секунды: проверка подписки, сегментация и сценарии, которые ведут человека к цели.',
+            tile3_t: 'AI-агенты', tile3_d: 'Живой тон бренда, память контекста и аккуратные продажи — когда важно не потерять тепло общения.',
+            tile4_t: 'Управление соцсетями', tile4_d: 'Сторис, комментарии, директ и мессенджеры — одна логика вовлечения и меньше «ручного» тушения пожаров.',
+            stat1_val: 'x5', stat1_txt: 'Рост охватов',
+            stat2_val: '150 000+', stat2_txt: 'Подписчиков',
+            stat3_val: '5 мин', stat3_txt: 'На запуск',
+            feat_label: 'Автоматизация в цифрах смысла', feat_heading: 'От первого касания до повторной покупки',
+            feat_lead: 'Каждый модуль закрывает этап воронки: привлечение, доверие, продажа, удержание. Соединяйте их в цепочку — и рост становится измеримым.',
+            f1_t: 'ИИ-агенты', f1_d: 'Держит диалог в голосе бренда, помнит контекст и мягко ведёт к оплате — даже когда команда офлайн.',
+            f2_t: 'Геймификация', f2_d: 'Начисления и таблицы лидеров без ручной рутины — аудитория возвращается за статусом и призами.',
+            f3_t: 'Автоворонки', f3_d: 'Прогревы, напоминания и «возвраты» в диалог — чтобы холодный трафик не остывал между касаниями.',
+            f4_t: 'Чат-боты с проверкой подписки', f4_d: 'Гейт на бонус или материал: подписка подтверждена — и только тогда открывается следующий шаг воронки.',
+            f5_t: 'Реферальная система', f5_d: 'Превращайте довольных подписчиков в канал органического трафика: рекомендации, которые можно отследить.',
+            f6_t: 'Запуск со смартфона', f6_d: 'Короткая форма быстрого старта: текст сценария — и бот уже ведёт людей, без долгой настройки «под капотом».',
+            f7_t: 'Instagram', f7_d: 'Связка Reels, сторис и директа: больше идей для контента и понятный путь от просмотра к действию.',
+            f8_t: 'Facebook и Messenger', f8_d: 'Один сценарий на комментарии и личку — удобно, если бренд живёт сразу в нескольких площадках.',
+            f9_t: 'CRM и интеграции', f9_d: 'События из чатов улетают в оплату, таблицы и сторонние сервисы — меньше потерянных лидов по дороге.',
+            plat_heading: 'Мультиплатформа без разрыва',            
+            nl_placeholder: 'you@company.com',
+            nl_btn: 'Подписаться',
+            nl_thanks: 'Спасибо! Проверьте почту.',
+            footer_copy: '© ChatPlace · AI для соцсетей'
+        },
+        uz: {
+            nav_home: 'Bosh sahifa', nav_value: 'Platforma haqida', nav_sol: 'Yo‘nalishlar', nav_stats: 'Raqamlar', nav_feat: 'Imkoniyatlar', nav_plat: 'Platformalar', nav_sub: 'Obuna', nav_lang_label: 'Til',
+            title: 'Ijtimoiy tarmoqlarda biznesingizni AI bilan rivojlantiring',
+            subtitle: 'Platforma biznesga Instagram, TikTok va Telegram ichida to‘liq voronkalar qurish imkonini beradi: birinchi tegishdan savdogacha — menejerning doimiy ishtirokisiz.',
+            cta: 'Bepul sinab ko‘ring',
+            pitch_label: 'Platforma haqida',
+            pitch_head: 'Aqlli AI-agentlar — chatlarda virtual xodim',
+            pitch_ai: 'Asosiy kuch — virtual xodimdek ishlaydigan aqlli AI-agentlar: xabarlarga javob beradi, arizalarni qayta ishlaydi, mijozlarga maslahat beradi va kerak bo‘lsa dialogni jonli menejerga uzatadi.',
+            pitch_list_title: 'Xizmat qila oladi:',
+            pitch_li1: 'DM va izohlarda avtomatik javob berish',
+            pitch_li2: 'Ssenariylar va avtovornokalar orqali auditoriyani iliqlash',
+            pitch_li3: 'Mijozlar bazasini yig‘ish va segmentlash',
+            pitch_li4: 'To‘lovlarni qabul qilish va boshqa xizmatlar bilan integratsiya',
+            pitch_li5: 'Jamoa sonini oshirmasdan savdoni masshtablash',
+            pitch_nn: 'Qo‘shimcha ravishda zamonaviy AI-modellari asosidagi neyrotarmoq muloqotni yanada «jonli» va shaxsiylashtirilgan qilishga yordam beradi — bu jalb qilish va konversiyani oshiradi.',
+            sol_label: 'O‘sish ramkasi', sol_heading: 'To‘rta tayanch: qamrov, dialog, AI, boshqaruv',
+            sol_lead: 'Brend atrofida bashorat qilinadigan mexanika: kontent va SMM trafikni tortadi, botlar saralaydi, AI bitimni yakunlaydi, yagona qoidalar esa ijtimoiy tarmoqlarni bir ritmda ushlab turadi.',
+            growth_cap: 'Qamrov → dialog → konversiya',
+            tile1_t: 'SMM', tile1_d: 'Taqvim, chiqish ritmi va mazmun ilgaklari — jamoada xaosiz qamrovni barqaror oshirish.',
+            tile2_t: 'Chat-botlar', tile2_d: 'Birinchi javob soniyalar ichida: obunani tekshirish, segmentatsiya va maqsadga olib boradigan ssenariylar.',
+            tile3_t: 'AI-agentlar', tile3_d: 'Brend ovozi, kontekst xotirasi va muloyim savdo — iliq muloqotni yo‘qotmaslik uchun.',
+            tile4_t: 'Ijtimoiy tarmoqlarni boshqarish', tile4_d: 'Storiz, izohlar, DM va messenjerlar — bir xil jalb qilish mantiqiy va kamroq qo‘lda “yong‘inlar”.',
+            stat1_val: 'x5', stat1_txt: 'Qamrov o‘sishi',
+            stat2_val: '150 000+', stat2_txt: 'Obunachilar',
+            stat3_val: '5 daqiqa', stat3_txt: 'Ishga tushirish',
+            feat_label: 'Ma’noda raqamlar', feat_heading: 'Birinchi tegishdan takroriy xaridgacha',
+            feat_lead: 'Har bir modul voronka bosqichini yopadi: jalb, ishonch, savdo, ushlab turish. Ularni zanjirga ulang — o‘sish o‘lchanadigan bo‘ladi.',
+            f1_t: 'AI-agentlar', f1_d: 'Brend ovozida dialog, kontekstni eslaydi va to‘lovga muloyim yetaklaydi — jamoa oflayn bo‘lsa ham.',
+            f2_t: 'Geymifikatsiya', f2_d: 'Hisoblash va liderlar jadvali qo‘lda rutinasiz — auditoriya status va sovg‘alar uchun qaytadi.',
+            f3_t: 'Avtovornokalar', f3_d: 'Iliqlash, eslatmalar va dialogga “qaytish” — sovuq trafik tegishlar orasida sovimasin.',
+            f4_t: 'Obunani tekshiradigan chat-botlar', f4_d: 'Bonus yoki material uchun darvoza: obuna tasdiqlanganidan keyingina keyingi voronka qadami ochiladi.',
+            f5_t: 'Referal tizimi', f5_d: 'Qoniqarli obunachilarni organik trafik kanaliga aylantiring: kuzatiladigan tavsiyalar.',
+            f6_t: 'Smartfondan ishga tushirish', f6_d: 'Qisqa tez-start formasi: ssenariy matni — va bot odamlarni boshqaradi, “motor”ni uzoq sozlashsiz.',
+            f7_t: 'Instagram', f7_d: 'Reels, storiz va DM bog‘lanishi: ko‘proq kontent g‘oyalari va ko‘rishdan harakatga aniq yo‘l.',
+            f8_t: 'Facebook va Messenger', f8_d: 'Izohlar va shaxsiy xabarlar uchun yagona ssenariy — brend bir nechta maydonda bo‘lsa qulay.',
+            f9_t: 'CRM va integratsiyalar', f9_d: 'Chatlardan voqealar to‘lov, jadval va tashqi xizmatlarga ketadi — yo‘qotilgan lidlar kamayadi.',
+            plat_heading: 'Multiplatforma uzilishsiz', plat_sub: 'Yagona ssenariy — turli kirishlar: qisqa video, storiz, postlar va messenjerlar yagona voronka sifatida ishlaydi.',
+            nl_title: 'Shovqinsiz, o‘sish haqida xatlar',
+            nl_sub: 'Haftasiga bir marta: mexanikalar tahlili, yangi shablonlar va ChatPlace jamoasidan qisqa eslatmalar. Bir bosishda obunani bekor qilish.',
+            nl_placeholder: 'siz@kompaniya.uz',
+            nl_btn: 'Obuna bo‘lish',
+            nl_thanks: 'Rahmat! Pochtani tekshiring.',
+            footer_copy: '© ChatPlace · Ijtimoiy tarmoqlar uchun AI'
+        },
+        en: {
+            nav_home: 'Home', nav_value: 'About the platform', nav_sol: 'Focus areas', nav_stats: 'Numbers', nav_feat: 'Capabilities', nav_plat: 'Platforms', nav_sub: 'Newsletter', nav_lang_label: 'Language',
+            title: 'Scale Your Social Business with AI',
+            subtitle: 'The platform lets businesses build full funnels right inside Instagram, TikTok, and Telegram — from first touch to sale without a manager constantly in the loop.',
+            cta: 'Try for Free',
+            pitch_label: 'About the platform',
+            pitch_head: 'Smart AI agents — a virtual teammate in your chats',
+            pitch_ai: 'The core advantage is smart AI agents that work like a virtual employee: they reply to messages, handle requests, advise customers, and hand off to a live manager when needed.',
+            pitch_list_title: 'The service can:',
+            pitch_li1: 'Reply automatically in DMs and comments',
+            pitch_li2: 'Warm up audiences with scenarios and auto-funnels',
+            pitch_li3: 'Build a customer base and segment it',
+            pitch_li4: 'Take payments and integrate with other tools',
+            pitch_li5: 'Scale sales without growing headcount',
+            pitch_nn: 'A built-in neural network powered by modern AI models also makes communication feel more human and personalized — boosting engagement and conversion.',
+            sol_label: 'Growth frame', sol_heading: 'Four pillars: reach, dialogue, AI, control',
+            sol_lead: 'Build a predictable engine around your brand: content and SMM pull traffic, bots qualify, AI closes the sale, and shared playbooks keep every channel in sync.',
+            growth_cap: 'Reach → dialogue → conversion',
+            tile1_t: 'SMM', tile1_d: 'Calendar, publishing rhythm, and narrative hooks — grow reach steadily without team chaos.',
+            tile2_t: 'Chatbots', tile2_d: 'Instant first response: subscription checks, segmentation, and flows that move people toward the goal.',
+            tile3_t: 'AI agents', tile3_d: 'On-brand tone, remembered context, and gentle selling — warmth that does not feel robotic.',
+            tile4_t: 'Social ops', tile4_d: 'Stories, comments, DMs, and messengers — one engagement logic and fewer manual fire drills.',
+            stat1_val: 'x5', stat1_txt: 'Reach growth',
+            stat2_val: '150,000+', stat2_txt: 'Subscribers',
+            stat3_val: '5 min', stat3_txt: 'To launch',
+            feat_label: 'Automation with intent', feat_heading: 'From first touch to repeat purchase',
+            feat_lead: 'Each module covers a funnel stage: attraction, trust, revenue, retention. Chain them together and growth becomes measurable.',
+            f1_t: 'AI agents', f1_d: 'Keeps the brand voice, recalls context, and nudges toward payment — even when the team is offline.',
+            f2_t: 'Gamification', f2_d: 'Points and leaderboards without spreadsheet chores — audiences return for status and rewards.',
+            f3_t: 'Auto-funnels', f3_d: 'Warm-ups, reminders, and win-backs — so cold traffic does not cool off between touches.',
+            f4_t: 'Chatbots with subscription checks', f4_d: 'Gate bonuses or assets: once the follow is verified, the next funnel step unlocks.',
+            f5_t: 'Referral system', f5_d: 'Turn happy fans into measurable organic reach through recommendations you can track.',
+            f6_t: 'Launch from your phone', f6_d: 'A short fast-start form: paste the script copy and the bot is already guiding people — no long “under the hood” setup.',
+            f7_t: 'Instagram', f7_d: 'Connect Reels, Stories, and DMs — more content sparks and a clear path from view to action.',
+            f8_t: 'Facebook & Messenger', f8_d: 'One playbook for comments and inbox threads — ideal when the brand spans multiple surfaces.',
+            f9_t: 'CRM & integrations', f9_d: 'Chat events flow into payments, sheets, and other tools — fewer leads lost in handoffs.',
+            plat_heading: 'Multi-platform, zero disconnect', plat_sub: 'One scenario — many entry points: short video, Stories, feed posts, and messengers act as a single funnel.',
+            nl_title: 'Letters about growth, not noise',
+            nl_sub: 'Weekly mechanics breakdowns, fresh templates, and short notes from the ChatPlace team. Unsubscribe in one click.',
+            nl_placeholder: 'you@company.com',
+            nl_btn: 'Subscribe',
+            nl_thanks: 'Thanks! Check your inbox.',
+            footer_copy: '© ChatPlace · AI for social'
+        }
+    };
+
+    function setLang(lang) {
+        document.querySelectorAll('[data-key]').forEach(el => {
+            const key = el.getAttribute('data-key');
+            const val = langData[lang][key];
+            if (val === undefined) return;
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.placeholder = val;
+            } else {
+                el.textContent = val;
+            }
+        });
+        document.querySelectorAll('.lang-switcher button').forEach(btn => {
+            btn.classList.toggle('active', btn.id === 'btn-' + lang || btn.id === 'btn-' + lang + '-d');
+        });
+    }
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const drawerBackdrop = document.getElementById('drawer-backdrop');
+    const drawer = document.getElementById('drawer');
+
+    function closeNav() {
+        document.body.classList.remove('nav-open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        drawer.setAttribute('aria-hidden', 'true');
+        drawerBackdrop.setAttribute('aria-hidden', 'true');
+        menuToggle.focus();
+    }
+
+    function openNav() {
+        document.body.classList.add('nav-open');
+        menuToggle.setAttribute('aria-expanded', 'true');
+        drawer.setAttribute('aria-hidden', 'false');
+        drawerBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function toggleNav() {
+        if (document.body.classList.contains('nav-open')) closeNav();
+        else openNav();
+    }
+
+    menuToggle.addEventListener('click', toggleNav);
+    drawerBackdrop.addEventListener('click', closeNav);
+
+    document.querySelectorAll('#drawer-nav a[href^="#"]').forEach(a => {
+        a.addEventListener('click', () => {
+            if (window.matchMedia('(max-width: 959px)').matches) closeNav();
+        });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.body.classList.contains('nav-open')) closeNav();
+    });
+
+    document.getElementById('newsletter-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const input = this.querySelector('input[type="email"]');
+        const thanks = document.getElementById('nl-thanks');
+        if (!input.checkValidity()) {
+            input.reportValidity();
+            return;
+        }
+        thanks.classList.add('visible');
+        this.reset();
+        const active = document.querySelector('.site-header .lang-switcher button.active');
+        const lid = active ? active.id : 'btn-ru';
+        const lang = lid === 'btn-uz' || lid === 'btn-uz-d' ? 'uz' : lid === 'btn-en' || lid === 'btn-en-d' ? 'en' : 'ru';
+        thanks.textContent = langData[lang].nl_thanks;
+    });
+</script>
+
+</body>
+</html>
