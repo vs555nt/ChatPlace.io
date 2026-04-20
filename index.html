@@ -1072,28 +1072,17 @@
     </section>
 
   
+   
     <section class="newsletter" id="subscribe" aria-labelledby="nl-heading">
         <div class="newsletter-inner">
             <h2 id="nl-heading" data-key="nl_title">Письма про рост, не про шум</h2>
-                       <form
-  action="https://formspree.io/f/mdaydpde"
-  method="POST"
->
-  <label>
-    Your email:
-    <input type="email" name="email">
-  </label>
-  <label>
-    Your message:
-    <textarea name="message"></textarea>
-  </label>
-  <!-- your other form fields go here -->
-  <button type="submit">Send</button>
-</form>
+                        <form class="newsletter-form" id="newsletter-form" action="#" method="post" novalidate>
+                <input type="email" name="email" data-key="nl_placeholder" placeholder="you@company.com" autocomplete="email" required>
+                <button type="submit" data-key="nl_btn">Подписаться</button>
+            </form>
             <div class="newsletter-thanks" id="nl-thanks" data-key="nl_thanks" role="status" aria-live="polite"></div>
         </div>
     </section>
-</div>
 
 <footer>
     <div class="container">
